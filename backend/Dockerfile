@@ -14,11 +14,12 @@ COPY requirements.txt .
 # Install dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy source code. Note: the docker-compose will mount /app
-COPY . .
+# Copy source code into a subfolder named 'backend'
+COPY . ./backend
 
 # Expose API port
 EXPOSE 8000
 
 # Start fastapi server
 CMD ["uvicorn", "backend.main:app", "--host", "0.0.0.0", "--port", "8000"]
+
