@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: pitchflow-db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres_password_secure_123
+      POSTGRES_DB: pitchflow
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: pitchflow-backend
+    restart: always
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres_password_secure_123@db:5432/pitchflow
+      - JWT_SECRET=super_secret_pitchflow_key_123456_production_ready
+      - ACCESS_TOKEN_EXPIRE_MINUTES=1440
+      - ADMIN_EMAIL=admin@pitchflow.com
+      - ADMIN_PASSWORD=admin123
+    depends_on:
+      - db
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        - VITE_API_URL=https://pitchflow.riturajshukla.tech
+    container_name: pitchflow-frontend
+    restart: always
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+
+volumes:
+  pgdata:
